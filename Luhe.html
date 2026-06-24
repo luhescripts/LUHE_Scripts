@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LUHE Scripts — RedM Ressourcen</title>
+<meta name="description" content="Handgefertigte, performante VORP-Scripts. Escrow-geschützt. Sofort verfügbar über Tebex." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- =========================================================================
+     OPTIONAL: Eingebetteter Tebex-Checkout (In-Page-Overlay)
+     -------------------------------------------------------------------------
+     Standardmäßig öffnet jeder Kauf-Button die Tebex-Paketseite (funktioniert
+     immer). Wenn du den eingebetteten Checkout willst:
+       1. Diese <script>-Zeile einkommentieren (URL ggf. an Tebex-Doku anpassen)
+       2. In CONFIG unten "tebexWebstoreToken" eintragen
+       3. Bei jedem Script "tebexPackageId" setzen
+     Doku: https://docs.tebex.io
+     <script src="https://js.tebex.io/v/1.js"></script>
+     ========================================================================= -->
+
+<style>
+  :root{
+    /* ---- Farbpalette: Schwarz / Weiß / RedM-Rot ---- */
+    --ink:        #0b0b0c;   /* Hintergrund (Schwarz)            */
+    --panel:      #141415;   /* Panel-Hintergrund                */
+    --panel-2:    #1b1b1d;   /* erhöhte Fläche                   */
+    --white:      #f3f1ec;   /* heller Text (warmes Weiß)        */
+    --muted:      #9c9893;   /* gedämpfter Text                  */
+    --red:        #c4211b;   /* RedM-Rot, Akzent / Hover         */
+    --red-br:     #e22b20;   /* helleres Rot                     */
+    --line:       rgba(255,255,255,.11);
+
+    --ff-display: "Cinzel", Georgia, serif;
+    --ff-body:    "EB Garamond", Georgia, serif;
+    --ff-util:    "Oswald", "Arial Narrow", sans-serif;
+
+    --maxw: 1160px;
+    --radius: 4px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 650px at 50% -12%, #1a1a1c 0%, transparent 60%),
+      var(--ink);
+    color:var(--white);
+    font-family:var(--ff-body);
+    font-size:18px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{ /* feine Filmkorn-/Gravur-Textur */
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    opacity:.04; mix-blend-mode:screen;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--red); color:var(--white); }
+
+  .wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:24px; position:relative; z-index:1; }
+
+  .eyebrow{
+    font-family:var(--ff-util); text-transform:uppercase;
+    letter-spacing:.34em; font-size:.72rem; font-weight:600;
+    color:var(--red); display:inline-block;
+  }
+
+  /* ===================== NAV ===================== */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:linear-gradient(180deg, rgba(11,11,12,.97), rgba(11,11,12,.85));
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav__inner{ display:flex; align-items:center; gap:24px; height:74px; }
+  .brand{ display:flex; align-items:baseline; gap:.5ch; line-height:1; }
+  .brand b{ font-family:var(--ff-display); font-weight:900; font-size:1.45rem; letter-spacing:.12em; color:var(--white); }
+  .brand span{ font-family:var(--ff-util); font-weight:600; letter-spacing:.4em; font-size:.7rem; text-transform:uppercase; color:var(--red); }
+  .nav__links{ display:flex; gap:30px; margin-left:auto; }
+  .nav__links a{
+    font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.14em;
+    font-size:.8rem; color:var(--muted); padding:6px 0; position:relative;
+  }
+  .nav__links a::after{
+    content:""; position:absolute; left:0; right:0; bottom:-2px; height:1px;
+    background:var(--red); transform:scaleX(0); transform-origin:left; transition:transform .25s ease;
+  }
+  .nav__links a:hover{ color:var(--white); }
+  .nav__links a:hover::after{ transform:scaleX(1); }
+
+  /* Sprach-Umschalter */
+  .lang{ display:flex; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .lang button{
+    font-family:var(--ff-util); font-weight:600; font-size:.72rem; letter-spacing:.12em;
+    background:transparent; color:var(--muted); border:none; cursor:pointer;
+    padding:8px 12px; transition:.18s ease;
+  }
+  .lang button:hover{ color:var(--white); }
+  .lang button.active{ background:var(--red); color:var(--white); }
+  .lang button:focus-visible{ outline:2px solid var(--red-br); outline-offset:2px; }
+
+  .btn{
+    font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.12em;
+    font-weight:600; font-size:.82rem; cursor:pointer;
+    padding:13px 22px; border-radius:var(--radius); transition:.2s ease;
+    display:inline-flex; align-items:center; gap:.6ch; white-space:nowrap;
+    border:1px solid transparent;
+  }
+  /* Standard hell — wird beim Hover rot (RedM-Look) */
+  .btn--primary{ background:var(--white); color:#111; border-color:var(--white); }
+  .btn--primary:hover{ background:var(--red); border-color:var(--red); color:var(--white); transform:translateY(-1px); }
+  /* Outline — wird beim Hover rot gefüllt */
+  .btn--ghost{ background:transparent; color:var(--white); border-color:var(--line); }
+  .btn--ghost:hover{ background:var(--red); border-color:var(--red); color:var(--white); transform:translateY(-1px); }
+  .btn:focus-visible{ outline:2px solid var(--red-br); outline-offset:3px; }
+
+  .nav__toggle{ display:none; background:none; border:1px solid var(--line); border-radius:var(--radius);
+    color:var(--white); width:44px; height:40px; cursor:pointer; font-size:1.1rem; }
+  .nav__mobile{ display:none; }
+
+  /* ===================== HERO ===================== */
+  .hero{ position:relative; padding:96px 0 84px; text-align:center; overflow:hidden; }
+  .hero::after{
+    content:""; position:absolute; left:50%; top:-30%; width:900px; height:700px;
+    transform:translateX(-50%); pointer-events:none; z-index:0;
+    background:radial-gradient(closest-side, rgba(196,33,27,.12), transparent 70%);
+  }
+  .hero > *{ position:relative; z-index:1; }
+  .filigree{ width:230px; height:auto; margin:0 auto 22px; color:var(--white); opacity:.55; }
+  .hero h1{
+    font-family:var(--ff-display); font-weight:900; color:var(--white);
+    font-size:clamp(2.4rem, 6vw, 4.6rem); line-height:1.04; margin:.1em 0 0;
+    letter-spacing:.01em; text-wrap:balance;
+  }
+  .hero h1 em{ font-style:normal; color:var(--red); }
+  .hero p.lead{ max-width:660px; margin:22px auto 0; font-size:1.22rem; color:var(--muted); text-wrap:balance; }
+  .hero__cta{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:34px; }
+
+  .trust{ border-block:1px solid var(--line); margin-top:70px; padding:22px 0; }
+  .trust__inner{ display:flex; align-items:center; justify-content:center; gap:14px 38px; flex-wrap:wrap; }
+  .trust__label{ font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.24em; font-size:.7rem; color:var(--muted); }
+  .trust__item{ font-family:var(--ff-display); font-weight:700; letter-spacing:.08em; color:var(--white); font-size:1.05rem; opacity:.85; }
+
+  /* ===================== SECTIONS ===================== */
+  .section{ padding:90px 0; }
+  .section__head{ text-align:center; max-width:720px; margin:0 auto 54px; }
+  .section__head h2{ font-family:var(--ff-display); font-weight:700; color:var(--white); font-size:clamp(1.9rem,4vw,2.9rem); margin:.4em 0 0; line-height:1.1; }
+  .section__head p{ color:var(--muted); margin:.6em 0 0; font-size:1.12rem; }
+
+  /* ===================== SCRIPT-GRID ===================== */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:30px; }
+  .card{
+    position:relative; background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line); border-radius:var(--radius);
+    display:flex; flex-direction:column; overflow:hidden;
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{ transform:translateY(-5px); border-color:rgba(196,33,27,.6); box-shadow:0 18px 40px -22px #000; }
+  .card__corner{ position:absolute; width:34px; height:34px; color:var(--white); opacity:.28; z-index:3; pointer-events:none; }
+  .card__corner--tl{ top:8px; left:8px; }
+  .card__corner--br{ bottom:8px; right:8px; transform:rotate(180deg); }
+
+  .card__media{
+    aspect-ratio:16/9; position:relative; overflow:hidden;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 2px, transparent 2px 9px),
+      linear-gradient(135deg, #232325, #141416);
+    display:flex; align-items:center; justify-content:center;
+    border-bottom:1px solid var(--line);
+  }
+  .card__media img{ width:100%; height:100%; object-fit:cover; }
+  .card__monogram{ font-family:var(--ff-display); font-weight:900; font-size:3.4rem; color:rgba(255,255,255,.16); letter-spacing:.05em; }
+  .card__badge{
+    position:absolute; top:12px; left:12px; z-index:2;
+    font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.16em;
+    font-size:.66rem; font-weight:600; padding:5px 11px; border-radius:2px;
+    background:var(--white); color:#111;
+  }
+  .card__price{
+    position:absolute; right:14px; bottom:-16px; z-index:2;
+    font-family:var(--ff-util); font-weight:700; font-size:1.15rem;
+    color:var(--white); background:var(--red);
+    padding:9px 16px; border-radius:2px; transform:rotate(-3deg);
+    box-shadow:0 0 0 3px rgba(255,255,255,.85), 0 8px 16px -8px #000;
+    letter-spacing:.02em;
+  }
+  .card__body{ padding:26px 24px 24px; display:flex; flex-direction:column; flex:1; }
+  .card__frameworks{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+  .chip{
+    font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.1em;
+    font-size:.64rem; font-weight:500; color:var(--white);
+    border:1px solid var(--line); padding:3px 9px; border-radius:2px; opacity:.8;
+  }
+  .card__title{ font-family:var(--ff-display); font-weight:700; color:var(--white); font-size:1.4rem; margin:0 0 .3em; line-height:1.15; }
+  .card__tagline{ color:var(--muted); font-style:italic; margin:0 0 14px; font-size:1.02rem; }
+  .card__features{ list-style:none; padding:0; margin:0 0 22px; }
+  .card__features li{ position:relative; padding-left:22px; color:var(--white); font-size:1rem; margin-bottom:6px; opacity:.85; }
+  .card__features li::before{ content:"✦"; position:absolute; left:0; color:var(--red); font-size:.8rem; top:2px; }
+  .card__actions{ display:flex; gap:10px; margin-top:auto; }
+  .card__actions .btn{ flex:1; justify-content:center; padding:12px 14px; }
+
+  /* ===================== FEATURES ===================== */
+  .features{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:1px; background:var(--line);
+    border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .feature{ background:var(--panel); padding:38px 30px; }
+  .feature__ico{ width:42px; height:42px; color:var(--red); margin-bottom:18px; }
+  .feature h3{ font-family:var(--ff-display); font-weight:700; font-size:1.25rem; color:var(--white); margin:0 0 .4em; }
+  .feature p{ color:var(--muted); margin:0; font-size:1.02rem; }
+
+  /* ===================== FAQ ===================== */
+  .faq{ max-width:780px; margin-inline:auto; }
+  .faq__item{ border-bottom:1px solid var(--line); }
+  .faq__q{
+    width:100%; background:none; border:none; cursor:pointer; text-align:left;
+    color:var(--white); font-family:var(--ff-display); font-weight:500; font-size:1.18rem;
+    padding:24px 40px 24px 0; position:relative;
+  }
+  .faq__q:hover{ color:var(--red); }
+  .faq__q::after{ content:"+"; position:absolute; right:6px; top:50%; transform:translateY(-50%);
+    color:var(--red); font-family:var(--ff-util); font-size:1.6rem; transition:transform .25s ease; }
+  .faq__item.open .faq__q::after{ transform:translateY(-50%) rotate(45deg); }
+  .faq__a{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .faq__a p{ color:var(--muted); margin:0; padding:0 40px 24px 0; font-size:1.06rem; }
+
+  /* ===================== CTA-BAND ===================== */
+  .band{ text-align:center; border:1px solid var(--line); border-radius:var(--radius);
+    background:radial-gradient(700px 300px at 50% 0%, rgba(196,33,27,.22), transparent 70%), var(--panel);
+    padding:62px 30px; }
+  .band h2{ font-family:var(--ff-display); font-weight:700; color:var(--white); font-size:clamp(1.7rem,4vw,2.6rem); margin:.3em 0 .4em; }
+  .band p{ color:var(--muted); max-width:540px; margin:0 auto 28px; }
+
+  /* ===================== FOOTER ===================== */
+  .footer{ border-top:1px solid var(--line); padding:50px 0 60px; margin-top:30px; }
+  .footer__inner{ display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; align-items:center; }
+  .footer__links{ display:flex; gap:26px; flex-wrap:wrap; }
+  .footer__links a{ font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; color:var(--muted); }
+  .footer__links a:hover{ color:var(--red); }
+  .footer small{ color:var(--muted); display:block; margin-top:18px; font-family:var(--ff-util); letter-spacing:.06em; font-size:.78rem; width:100%; opacity:.7; }
+
+  /* ===================== MODAL ===================== */
+  .modal{ position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; padding:24px; }
+  .modal.open{ display:flex; }
+  .modal__overlay{ position:absolute; inset:0; background:rgba(0,0,0,.84); backdrop-filter:blur(3px); }
+  .modal__box{
+    position:relative; z-index:1; width:100%; max-width:640px; max-height:88vh; overflow:auto;
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid rgba(196,33,27,.5); border-radius:var(--radius); padding:36px 34px;
+    box-shadow:0 30px 80px -20px #000;
+  }
+  .modal__close{ position:absolute; top:14px; right:14px; background:none; border:1px solid var(--line);
+    color:var(--white); width:38px; height:38px; border-radius:var(--radius); cursor:pointer; font-size:1.1rem; }
+  .modal__close:hover{ border-color:var(--red); color:var(--red); }
+  .modal h3{ font-family:var(--ff-display); font-weight:700; color:var(--white); font-size:1.9rem; margin:.2em 0; }
+  .modal .lead{ color:var(--muted); font-style:italic; margin:0 0 18px; }
+  .modal p{ color:var(--white); opacity:.9; }
+  .modal__features{ list-style:none; padding:0; margin:18px 0 26px; }
+  .modal__features li{ position:relative; padding-left:24px; margin-bottom:9px; color:var(--white); opacity:.85; }
+  .modal__features li::before{ content:"✦"; position:absolute; left:0; color:var(--red); }
+  .modal__buy{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:22px; }
+  .modal__buy .price{ font-family:var(--ff-util); font-weight:700; font-size:1.7rem; color:var(--red); }
+  .modal__buy .btn{ margin-left:auto; }
+
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width:860px){
+    .nav__links{ display:none; }
+    .nav .lang{ display:none; }
+    .nav .btn--primary{ display:none; }
+    .nav__toggle{ display:block; margin-left:auto; }
+    .nav__mobile.open{ display:block; border-top:1px solid var(--line); padding-bottom:18px; }
+    .nav__mobile a{ display:block; padding:16px 0; font-family:var(--ff-util); text-transform:uppercase; letter-spacing:.14em; font-size:.85rem; color:var(--muted); border-bottom:1px solid var(--line); }
+    .nav__mobile .lang{ display:inline-flex; margin:18px 0 4px; }
+    .nav__mobile .btn{ width:100%; justify-content:center; margin:14px 0 4px; }
+    .section{ padding:64px 0; }
+    .hero{ padding:64px 0 56px; }
+    .modal__buy .btn{ margin-left:0; width:100%; justify-content:center; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ NAV ============================ -->
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="brand" href="#top" aria-label="LUHE Scripts"><b>LUHE</b><span>Scripts</span></a>
+    <nav class="nav__links" aria-label="Hauptnavigation">
+      <a href="#scripts" data-i18n="nav_scripts">Scripts</a>
+      <a href="#warum" data-i18n="nav_why">Warum LUHE</a>
+      <a href="#faq" data-i18n="nav_faq">FAQ</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Sprache wählen">
+      <button data-lang="de">DE</button><button data-lang="en">EN</button>
+    </div>
+    <a class="btn btn--primary" id="navStore" href="#" target="_blank" rel="noopener" data-i18n="nav_store">Tebex Store</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Menü" aria-expanded="false">☰</button>
+  </div>
+  <div class="wrap nav__mobile" id="navMobile">
+    <a href="#scripts" data-i18n="nav_scripts">Scripts</a>
+    <a href="#warum" data-i18n="nav_why">Warum LUHE</a>
+    <a href="#faq" data-i18n="nav_faq">FAQ</a>
+    <div class="lang" role="group" aria-label="Sprache wählen">
+      <button data-lang="de">DE</button><button data-lang="en">EN</button>
+    </div>
+    <a class="btn btn--primary" id="navStoreMobile" href="#" target="_blank" rel="noopener" data-i18n="nav_store">Tebex Store</a>
+  </div>
+</header>
+
+<!-- ============================ HERO ============================ -->
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <svg class="filigree" viewBox="0 0 230 24" fill="none" aria-hidden="true">
+      <path d="M0 12h78" stroke="currentColor" stroke-width="1"/>
+      <path d="M152 12h78" stroke="currentColor" stroke-width="1"/>
+      <path d="M88 12c8-9 14-9 27 0 13-9 19-9 27 0" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="115" cy="12" r="3.4" fill="currentColor"/>
+      <circle cx="82" cy="12" r="2" fill="currentColor"/>
+      <circle cx="148" cy="12" r="2" fill="currentColor"/>
+    </svg>
+    <span class="eyebrow" data-i18n="hero_eyebrow">RedM Ressourcen · seit 1899</span>
+    <h1 data-i18n="hero_title">Handgefertigte Scripts<br>für deinen <em>RedM&#8209;Server</em></h1>
+    <p class="lead" data-i18n="hero_lead"></p>
+    <div class="hero__cta">
+      <a class="btn btn--primary" href="#scripts" data-i18n="hero_cta1">Scripts entdecken</a>
+      <a class="btn btn--ghost" id="heroDiscord" href="#" target="_blank" rel="noopener" data-i18n="hero_cta2">Discord beitreten</a>
+    </div>
+  </div>
+  <div class="trust">
+    <div class="wrap trust__inner">
+      <span class="trust__label" data-i18n="trust_label">Kompatibel mit</span>
+      <span class="trust__item">VORP</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SCRIPTS ============================ -->
+<section class="section" id="scripts">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow" data-i18n="scripts_eyebrow">Das Sortiment</span>
+      <h2 data-i18n="scripts_title">Unsere Scripts</h2>
+      <p data-i18n="scripts_sub"></p>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- ============================ WARUM ============================ -->
+<section class="section" id="warum">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow" data-i18n="why_eyebrow">Warum LUHE Scripts</span>
+      <h2 data-i18n="why_title">Gebaut für ernsthafte Server</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <svg class="feature__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+        <h3 data-i18n="feat1_t">Sofortige Lieferung</h3>
+        <p data-i18n="feat1_d"></p>
+      </div>
+      <div class="feature">
+        <svg class="feature__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 8 3 12l4 4M17 8l4 4-4 4M14 4l-4 16"/></svg>
+        <h3 data-i18n="feat2_t">Sauberer Code</h3>
+        <p data-i18n="feat2_d"></p>
+      </div>
+      <div class="feature">
+        <svg class="feature__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>
+        <h3 data-i18n="feat3_t">Laufende Updates</h3>
+        <p data-i18n="feat3_d"></p>
+      </div>
+      <div class="feature">
+        <svg class="feature__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+        <h3 data-i18n="feat4_t">Direkter Support</h3>
+        <p data-i18n="feat4_d"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FAQ ============================ -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow" data-i18n="faq_eyebrow">Häufige Fragen</span>
+      <h2 data-i18n="faq_title">FAQ</h2>
+    </div>
+    <div class="faq" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ============================ CTA-BAND ============================ -->
+<section class="section">
+  <div class="wrap">
+    <div class="band">
+      <span class="eyebrow" data-i18n="band_eyebrow">Bereit?</span>
+      <h2 data-i18n="band_title">Statte deinen Server aus</h2>
+      <p data-i18n="band_sub"></p>
+      <div class="hero__cta" style="margin-top:0">
+        <a class="btn btn--primary" id="bandStore" href="#" target="_blank" rel="noopener" data-i18n="band_cta1">Zum Tebex Store</a>
+        <a class="btn btn--ghost" id="bandDiscord" href="#" target="_blank" rel="noopener" data-i18n="band_cta2">Discord</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <a class="brand" href="#top"><b>LUHE</b><span>Scripts</span></a>
+    <nav class="footer__links" aria-label="Footer">
+      <a href="#scripts" data-i18n="nav_scripts">Scripts</a>
+      <a href="#warum" data-i18n="nav_why">Warum LUHE</a>
+      <a href="#faq" data-i18n="nav_faq">FAQ</a>
+      <a id="footStore" href="#" target="_blank" rel="noopener">Tebex</a>
+      <a id="footDiscord" href="#" target="_blank" rel="noopener">Discord</a>
+    </nav>
+    <small id="footNote"></small>
+  </div>
+</footer>
+
+<!-- ============================ MODAL ============================ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal__overlay" data-close></div>
+  <div class="modal__box">
+    <button class="modal__close" data-close aria-label="Schließen">✕</button>
+    <div class="card__frameworks" id="mFrameworks"></div>
+    <h3 id="modalTitle"></h3>
+    <p class="lead" id="mTagline"></p>
+    <p id="mDesc"></p>
+    <ul class="modal__features" id="mFeatures"></ul>
+    <div class="modal__buy">
+      <span class="price" id="mPrice"></span>
+      <button class="btn btn--primary" id="mBuy"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===========================================================================
+   ⚙️  KONFIGURATION  —  hier deine eigenen Links eintragen
+   =========================================================================== */
+const CONFIG = {
+  brand:           "LUHE Scripts",
+  tebexStoreUrl:   "https://luhe-scripts.tebex.io",   // ← deine Tebex-Store-URL
+  discordUrl:      "https://discord.gg/dein-invite",  // ← dein Discord-Invite
+  currency:        "€",                                // Währungssymbol
+  tebexWebstoreToken: ""                               // optional, siehe <head>
+};
+
+/* ===========================================================================
+   📦  SCRIPTS  —  NEUE SCRIPTS HIER HINZUFÜGEN
+   ---------------------------------------------------------------------------
+   Sprachabhängige Felder (tagline, description, features, badge) können
+   entweder ein einfacher Text ODER ein Objekt { de:"...", en:"..." } sein.
+   - Nur Text  ->  wird in beiden Sprachen gleich angezeigt
+   - { de, en } ->  wechselt mit dem DE/EN-Schalter
+   Pflichtfelder: name, price, tebexUrl.
+   =========================================================================== */
+const SCRIPTS = [
+  {
+    name: "Advanced Horse System",
+    tagline: { de:"Bindung, Pflege & Stallverwaltung für jedes Pferd.",
+               en:"Bonding, care & stable management for every horse." },
+    price: 19.99,
+    badge: { de:"BELIEBT", en:"POPULAR" },
+    frameworks: ["VORP"],
+    description: {
+      de:"Ein vollständiges Pferdesystem mit individuellen Statuswerten, Bindungsstufen, Fütterung, Striegeln und einer Stallverwaltung mit Versicherung. Jedes Pferd hat persistente Werte, die in der Datenbank gespeichert werden.",
+      en:"A complete horse system with individual stats, bonding levels, feeding, grooming and a stable manager with insurance. Every horse has persistent values stored in the database."
+    },
+    features: {
+      de:["Persistente Statuswerte (Ausdauer, Gesundheit, Hunger, Durst)","Bindungssystem mit freischaltbaren Fähigkeiten","Stall-UI mit Kauf, Verkauf & Versicherung","Konfigurierbare Rassen und Preise"],
+      en:["Persistent stats (stamina, health, hunger, thirst)","Bonding system with unlockable abilities","Stable UI with buy, sell & insurance","Configurable breeds and prices"]
+    },
+    tebexUrl: "https://luhe-scripts.tebex.io/package/horse-system"
+  },
+  {
+    name: "Bounty Hunting",
+    tagline: { de:"Steckbriefe, Kopfgelder und Gefangenentransport.",
+               en:"Wanted posters, bounties and prisoner transport." },
+    price: 24.99,
+    badge: { de:"NEU", en:"NEW" },
+    frameworks: ["VORP"],
+    description: {
+      de:"Verwandle deine Stadt in den Wilden Westen: Spieler nehmen Kopfgeld-Aufträge an, jagen Ziele, fesseln sie und liefern sie lebend oder tot beim Sheriff ab. Inklusive dynamischer Steckbrief-Tafel und NPC-Zielen.",
+      en:"Turn your town into the Wild West: players take bounty contracts, hunt targets, tie them up and bring them in dead or alive to the sheriff. Includes a dynamic wanted board and NPC targets."
+    },
+    features: {
+      de:["Dynamische Steckbrief-Tafel mit Live-Kopfgeldern","Spieler- und NPC-Ziele","Fesseln & Gefangenentransport auf dem Pferd","Belohnungssystem mit Sheriff-Abgabe"],
+      en:["Dynamic wanted board with live bounties","Player and NPC targets","Tie up & transport prisoners on horseback","Reward system with sheriff hand-in"]
+    },
+    tebexUrl: "https://luhe-scripts.tebex.io/package/bounty-hunting"
+  },
+  {
+    name: "Blacksmith & Crafting",
+    tagline: { de:"Schmiede, Rezepte und Materialwirtschaft.",
+               en:"Forge, recipes and material management." },
+    price: 14.99,
+    frameworks: ["VORP"],
+    description: {
+      de:"Ein komplettes Handwerkssystem rund um die Schmiede. Spieler sammeln Materialien, schmelzen Erz, fertigen Werkzeuge und Waffen nach freischaltbaren Rezepten und steigern dabei ihren Beruf.",
+      en:"A complete crafting system built around the forge. Players gather materials, smelt ore, craft tools and weapons from unlockable recipes and level up their profession along the way."
+    },
+    features: {
+      de:["Frei konfigurierbare Rezepte & Materialien","Fortschritts- und Berufslevel-System","Animierte Schmiede-Stationen","Lager- und Verkaufsanbindung"],
+      en:["Fully configurable recipes & materials","Progression and profession-level system","Animated forge stations","Storage and selling integration"]
+    },
+    tebexUrl: "https://luhe-scripts.tebex.io/package/blacksmith"
+  },
+  {
+    name: "Saloon & Poker",
+    tagline: { de:"Glücksspiel, Getränke und Live-Tische.",
+               en:"Gambling, drinks and live tables." },
+    price: 17.99,
+    frameworks: ["VORP"],
+    description: {
+      de:"Bring Leben in deine Saloons: Mehrspieler-Poker an echten Tischen, Black Jack, ein Tresen-System mit Getränken und Rauschsystem sowie eine Bühne für Auftritte.",
+      en:"Bring your saloons to life: multiplayer poker at real tables, black jack, a bar system with drinks and an intoxication effect, plus a stage for performances."
+    },
+    features: {
+      de:["Mehrspieler-Poker & Black Jack","Tresen mit Getränken & Alkoholeffekten","Konfigurierbare Einsätze & Limits","Bühnen- und Stimmungssystem"],
+      en:["Multiplayer poker & black jack","Bar with drinks & alcohol effects","Configurable stakes & limits","Stage and ambience system"]
+    },
+    tebexUrl: "https://luhe-scripts.tebex.io/package/saloon-poker"
+  }
+];
+
+/* ===========================================================================
+   🌐  ÜBERSETZUNGEN der Oberfläche  (Texte hier anpassbar)
+   =========================================================================== */
+const I18N = {
+  de: {
+    nav_scripts:"Scripts", nav_why:"Warum LUHE", nav_faq:"FAQ", nav_store:"Tebex Store",
+    hero_eyebrow:"RedM Ressourcen · seit 1899",
+    hero_title:"Handgefertigte Scripts<br>für deinen <em>RedM&#8209;Server</em>",
+    hero_lead:"LUHE&nbsp;Scripts liefert performante, escrow‑geschützte Ressourcen für VORP — sauber programmiert, gepflegt und sofort verfügbar über Tebex.",
+    hero_cta1:"Scripts entdecken", hero_cta2:"Discord beitreten",
+    trust_label:"Kompatibel mit",
+    scripts_eyebrow:"Das Sortiment", scripts_title:"Unsere Scripts",
+    scripts_sub:"Jede Ressource wird einzeln gepflegt und über Tebex ausgeliefert — mit automatischer Lieferung und Lizenzschutz.",
+    why_eyebrow:"Warum LUHE Scripts", why_title:"Gebaut für ernsthafte Server",
+    feat1_t:"Sofortige Lieferung", feat1_d:"Kauf über Tebex, automatischer Zugang in Sekunden. Keine Wartezeit, keine manuelle Freischaltung.",
+    feat2_t:"Sauberer Code", feat2_d:"Optimiert auf Performance — niedrige Resmon‑Werte, keine unnötigen Abhängigkeiten, klare Konfiguration.",
+    feat3_t:"Laufende Updates", feat3_d:"Scripts werden gepflegt und an neue Framework‑Versionen angepasst — kostenlos für Käufer.",
+    feat4_t:"Direkter Support", feat4_d:"Hilfe per Discord mit schnellen Reaktionszeiten — bei Einrichtung, Updates und Fragen.",
+    faq_eyebrow:"Häufige Fragen", faq_title:"FAQ",
+    band_eyebrow:"Bereit?", band_title:"Statte deinen Server aus",
+    band_sub:"Stöbere im vollständigen Sortiment auf Tebex oder tritt der Community bei, um Updates und Vorschauen zuerst zu sehen.",
+    band_cta1:"Zum Tebex Store", band_cta2:"Discord",
+    btn_details:"Details", btn_buy:"Kaufen", btn_buy_full:"Auf Tebex kaufen",
+    footer_note:"© {year} LUHE Scripts · Nicht von Rockstar Games oder dem RedM-Projekt unterstützt. Alle Marken gehören ihren jeweiligen Eigentümern."
+  },
+  en: {
+    nav_scripts:"Scripts", nav_why:"Why LUHE", nav_faq:"FAQ", nav_store:"Tebex Store",
+    hero_eyebrow:"RedM Resources · since 1899",
+    hero_title:"Handcrafted scripts<br>for your <em>RedM&nbsp;server</em>",
+    hero_lead:"LUHE&nbsp;Scripts delivers performant, escrow‑protected resources for VORP — cleanly coded, maintained and available instantly through Tebex.",
+    hero_cta1:"Browse scripts", hero_cta2:"Join Discord",
+    trust_label:"Compatible with",
+    scripts_eyebrow:"The catalogue", scripts_title:"Our scripts",
+    scripts_sub:"Every resource is maintained individually and delivered through Tebex — with automatic delivery and licence protection.",
+    why_eyebrow:"Why LUHE Scripts", why_title:"Built for serious servers",
+    feat1_t:"Instant delivery", feat1_d:"Buy through Tebex and get access within seconds. No waiting, no manual unlocking.",
+    feat2_t:"Clean code", feat2_d:"Optimised for performance — low resmon values, no needless dependencies, clear configuration.",
+    feat3_t:"Ongoing updates", feat3_d:"Scripts are maintained and adapted to new framework versions — free for buyers.",
+    feat4_t:"Direct support", feat4_d:"Help via Discord with fast response times — for setup, updates and questions.",
+    faq_eyebrow:"Frequently asked", faq_title:"FAQ",
+    band_eyebrow:"Ready?", band_title:"Equip your server",
+    band_sub:"Browse the full catalogue on Tebex or join the community to see updates and previews first.",
+    band_cta1:"Go to Tebex store", band_cta2:"Discord",
+    btn_details:"Details", btn_buy:"Buy", btn_buy_full:"Buy on Tebex",
+    footer_note:"© {year} LUHE Scripts · Not affiliated with Rockstar Games or the RedM project. All trademarks belong to their respective owners."
+  }
+};
+
+const FAQ = [
+  { de:["Wie erhalte ich mein Script nach dem Kauf?","Der Kauf läuft über Tebex. Direkt nach der Zahlung erhältst du automatisch Zugang zum Download bzw. zur Ressource — ganz ohne manuelle Freischaltung."],
+    en:["How do I receive my script after purchase?","Checkout runs through Tebex. Right after payment you automatically get access to the download or resource — with no manual unlocking."] },
+  { de:["Sind die Scripts geschützt (Escrow)?","Ja. Die Ressourcen werden über das offizielle Liefersystem ausgeliefert und sind escrow-geschützt, sodass dein Kauf und unsere Arbeit geschützt bleiben."],
+    en:["Are the scripts protected (escrow)?","Yes. Resources are delivered through the official delivery system and are escrow-protected, so your purchase and our work stay protected."] },
+  { de:["Welche Frameworks werden unterstützt?","Alle Scripts sind ausschließlich für VORP entwickelt und optimiert."],
+    en:["Which frameworks are supported?","All scripts are built and optimised exclusively for VORP."] },
+  { de:["Bekomme ich Updates?","Ja. Updates und Anpassungen an neue Framework-Versionen sind für Käufer kostenlos über Tebex verfügbar."],
+    en:["Do I get updates?","Yes. Updates and adaptations to new framework versions are free for buyers through Tebex."] },
+  { de:["Gibt es Support bei der Einrichtung?","Ja, über unseren Discord. Dort helfen wir bei Installation, Konfiguration und Fragen mit schnellen Reaktionszeiten."],
+    en:["Is there setup support?","Yes, through our Discord. We help with installation, configuration and questions with fast response times."] },
+  { de:["Darf ich ein Script weiterverkaufen?","Nein. Jeder Kauf gilt als Lizenz für den Eigengebrauch auf deinen Servern. Weiterverkauf oder Weitergabe ist nicht gestattet."],
+    en:["Can I resell a script?","No. Each purchase is a licence for your own use on your servers. Reselling or redistribution is not permitted."] }
+];
+
+/* ===========================================================================
+   ⬇️  AB HIER NICHTS MEHR ÄNDERN
+   =========================================================================== */
+(function(){
+  const $  = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+  // Startsprache aus Browser ableiten (Standard: Deutsch)
+  let lang = (navigator.language||"de").toLowerCase().startsWith("en") ? "en" : "de";
+
+  // sprachabhängiges Feld auflösen (String oder {de,en})
+  const tf = v => (v && typeof v === "object") ? (v[lang] ?? v.de ?? "") : (v ?? "");
+  const fmtPrice = p => {
+    const n = Number(p).toFixed(2);
+    return CONFIG.currency + (lang === "de" ? n.replace(".", ",") : n);
+  };
+
+  const corner   = `<svg class="card__corner card__corner--tl" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 14V2h12M2 8c4 0 6 2 6 6"/></svg>`;
+  const cornerBR = `<svg class="card__corner card__corner--br" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 14V2h12M2 8c4 0 6 2 6 6"/></svg>`;
+
+  /* ---- globale Links ---- */
+  ["navStore","navStoreMobile","bandStore","footStore"].forEach(id => { const e=$("#"+id); if(e) e.href=CONFIG.tebexStoreUrl; });
+  ["heroDiscord","bandDiscord","footDiscord"].forEach(id => { const e=$("#"+id); if(e) e.href=CONFIG.discordUrl; });
+
+  /* ---- Kauf-Funktion ---- */
+  function buy(s){
+    if (CONFIG.tebexWebstoreToken && s.tebexPackageId && window.Tebex) {
+      try {
+        Tebex.checkout.init({ ident:String(s.tebexPackageId), webstoreId:CONFIG.tebexWebstoreToken, theme:"dark" });
+        Tebex.checkout.launch();
+        return;
+      } catch(e){ /* Fallback auf Link */ }
+    }
+    window.open(s.tebexUrl || CONFIG.tebexStoreUrl, "_blank", "noopener");
+  }
+
+  /* ---- statische UI-Texte setzen ---- */
+  function applyStatic(){
+    const dict = I18N[lang];
+    $$("[data-i18n]").forEach(el => { const k=el.dataset.i18n; if(dict[k]!=null) el.innerHTML=dict[k]; });
+    $("#footNote").innerHTML = dict.footer_note.replace("{year}", new Date().getFullYear());
+    document.documentElement.lang = lang;
+    // aktiven Sprach-Button markieren (Desktop + Mobil)
+    $$("[data-lang]").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+  }
+
+  /* ---- Script-Karten ---- */
+  function renderGrid(){
+    const grid = $("#grid"); grid.innerHTML = "";
+    SCRIPTS.forEach((s, i) => {
+      const media = s.image
+        ? `<img src="${s.image}" alt="${s.name}" loading="lazy">`
+        : `<span class="card__monogram">${(s.name||"?").charAt(0)}</span>`;
+      const badge = s.badge ? `<span class="card__badge">${tf(s.badge)}</span>` : "";
+      const chips = (s.frameworks||[]).map(f => `<span class="chip">${f}</span>`).join("");
+      const feats = (tf(s.features)||[]).slice(0,4).map(f => `<li>${f}</li>`).join("");
+      const card = document.createElement("article");
+      card.className = "card";
+      card.innerHTML = `
+        ${corner}${cornerBR}
+        <div class="card__media">${badge}${media}<span class="card__price">${fmtPrice(s.price)}</span></div>
+        <div class="card__body">
+          <div class="card__frameworks">${chips}</div>
+          <h3 class="card__title">${s.name}</h3>
+          <p class="card__tagline">${tf(s.tagline)}</p>
+          <ul class="card__features">${feats}</ul>
+          <div class="card__actions">
+            <button class="btn btn--ghost" data-details="${i}">${I18N[lang].btn_details}</button>
+            <button class="btn btn--primary" data-buy="${i}">${I18N[lang].btn_buy}</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+  $("#grid").addEventListener("click", e => {
+    const b = e.target.closest("[data-buy]");
+    const d = e.target.closest("[data-details]");
+    if (b) buy(SCRIPTS[+b.dataset.buy]);
+    if (d) openModal(SCRIPTS[+d.dataset.details]);
+  });
+
+  /* ---- Detail-Modal ---- */
+  const modal = $("#modal");
+  function openModal(s){
+    $("#modalTitle").textContent = s.name;
+    $("#mTagline").textContent   = tf(s.tagline);
+    $("#mDesc").textContent      = tf(s.description);
+    $("#mPrice").textContent     = fmtPrice(s.price);
+    $("#mFrameworks").innerHTML  = (s.frameworks||[]).map(f=>`<span class="chip">${f}</span>`).join("");
+    $("#mFeatures").innerHTML    = (tf(s.features)||[]).map(f=>`<li>${f}</li>`).join("");
+    $("#mBuy").textContent       = I18N[lang].btn_buy_full;
+    $("#mBuy").onclick = () => buy(s);
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(){ modal.classList.remove("open"); document.body.style.overflow=""; }
+  modal.addEventListener("click", e => { if (e.target.hasAttribute("data-close")) closeModal(); });
+  document.addEventListener("keydown", e => { if (e.key==="Escape") closeModal(); });
+
+  /* ---- FAQ ---- */
+  function renderFaq(){
+    const el = $("#faqList"); el.innerHTML = "";
+    FAQ.forEach(item => {
+      const [q,a] = item[lang] || item.de;
+      const wrap = document.createElement("div");
+      wrap.className = "faq__item";
+      wrap.innerHTML = `<button class="faq__q">${q}</button><div class="faq__a"><p>${a}</p></div>`;
+      el.appendChild(wrap);
+    });
+  }
+  $("#faqList").addEventListener("click", e => {
+    const btn = e.target.closest(".faq__q"); if(!btn) return;
+    const item = btn.parentElement, ans = item.querySelector(".faq__a");
+    const open = item.classList.toggle("open");
+    ans.style.maxHeight = open ? ans.scrollHeight + "px" : "0";
+  });
+
+  /* ---- Sprache umschalten ---- */
+  function setLang(l){
+    if (l === lang) return;
+    lang = l;
+    applyStatic(); renderGrid(); renderFaq();
+  }
+  $$("[data-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+
+  /* ---- Mobile-Navigation ---- */
+  const toggle = $("#navToggle"), nm = $("#navMobile");
+  toggle.addEventListener("click", () => {
+    const open = nm.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", open);
+    toggle.textContent = open ? "✕" : "☰";
+  });
+  nm.addEventListener("click", e => {
+    if (e.target.tagName==="A"){ nm.classList.remove("open"); toggle.textContent="☰"; toggle.setAttribute("aria-expanded",false); }
+  });
+
+  /* ---- Start ---- */
+  applyStatic(); renderGrid(); renderFaq();
+})();
+</script>
+</body>
+</html>
