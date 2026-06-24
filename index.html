@@ -70,7 +70,7 @@
   .eyebrow{
     font-family:var(--ff-util); text-transform:uppercase;
     letter-spacing:.34em; font-size:.72rem; font-weight:600;
-    color:var(--red); display:inline-block;
+    color:var(--red); display:block; width:fit-content; margin-inline:auto; text-indent:.34em;
   }
 
   /* ===================== NAV ===================== */
@@ -134,7 +134,7 @@
     background:radial-gradient(closest-side, rgba(196,33,27,.12), transparent 70%);
   }
   .hero > *{ position:relative; z-index:1; }
-  .filigree{ width:230px; height:auto; margin:0 auto 22px; color:var(--white); opacity:.55; }
+  .filigree{ display:block; width:230px; height:auto; margin:0 auto 22px; color:var(--white); opacity:.55; }
   .hero h1{
     font-family:var(--ff-display); font-weight:900; color:var(--white);
     font-size:clamp(2.4rem, 6vw, 4.6rem); line-height:1.04; margin:.1em 0 0;
@@ -452,8 +452,8 @@
    =========================================================================== */
 const CONFIG = {
   brand:           "LUHE Scripts",
-  tebexStoreUrl:   "https://luhe-scripts.tebex.io",   // ← deine Tebex-Store-URL
-  discordUrl:      "https://discord.gg/dein-invite",  // ← dein Discord-Invite
+  tebexStoreUrl:   "https://luhe-scripts.tebex.io/luhescripts",   // ← deine Tebex-Store-URL
+  discordUrl:      "https://discord.gg/NMjutcawq",  // ← dein Discord-Invite
   currency:        "€",                                // Währungssymbol
   tebexWebstoreToken: ""                               // optional, siehe <head>
 };
@@ -469,70 +469,101 @@ const CONFIG = {
    =========================================================================== */
 const SCRIPTS = [
   {
-    name: "Advanced Horse System",
-    tagline: { de:"Bindung, Pflege & Stallverwaltung für jedes Pferd.",
-               en:"Bonding, care & stable management for every horse." },
-    price: 19.99,
+    name: "Product Catalog",
+    tagline: { de:"Interaktiver Produktkatalog im Buch-Stil für Shops.",
+               en:"Interactive book-style product catalog for shops." },
+    price: 25.00,
     badge: { de:"BELIEBT", en:"POPULAR" },
     frameworks: ["VORP"],
     description: {
-      de:"Ein vollständiges Pferdesystem mit individuellen Statuswerten, Bindungsstufen, Fütterung, Striegeln und einer Stallverwaltung mit Versicherung. Jedes Pferd hat persistente Werte, die in der Datenbank gespeichert werden.",
-      en:"A complete horse system with individual stats, bonding levels, feeding, grooming and a stable manager with insurance. Every horse has persistent values stored in the database."
+      de:"Eine RedM/VORP-Ressource, mit der Shop-Besitzer einen interaktiven Produktkatalog als Marker in der Welt platzieren. Kunden blättern in einer schreibgeschützten Buch-Ansicht, während Besitzer Produkte, Bilder, Preise, Bewertungen und Seitenreihenfolge direkt über die NUI verwalten. Bewusst ohne feste Kauf-Logik – der Katalog präsentiert Produkte sauber, ohne dich an ein bestimmtes Wirtschafts- oder Shop-System zu binden.",
+      en:"A RedM/VORP resource that lets shop owners place an interactive product catalog marker in the world. Customers browse a book-style catalog in a read-only view, while owners manage products, images, prices, ratings and page order directly from the NUI. Built for roleplay — it includes no purchase logic by default, presenting products cleanly without forcing a specific economy or shop system."
     },
     features: {
-      de:["Persistente Statuswerte (Ausdauer, Gesundheit, Hunger, Durst)","Bindungssystem mit freischaltbaren Fähigkeiten","Stall-UI mit Kauf, Verkauf & Versicherung","Konfigurierbare Rassen und Preise"],
-      en:["Persistent stats (stamina, health, hunger, thirst)","Bonding system with unlockable abilities","Stable UI with buy, sell & insurance","Configurable breeds and prices"]
+      de:["Doppelseitiges Katalog-Layout im Buch-Stil","Welt-Marker mit RedM-Prompt-Interaktion","Besitzer-Verwaltung & schreibgeschützte Kundenansicht","Platzierung per VORP-Item (product_catalog) oder /setcatalog","Admin-Override per ACE & optional jobbasiert","Lokale PNG-Komprimierung, Lazy-Loading & automatische MySQL-Tabelle"],
+      en:["Double-page book-style catalog layout","World marker with RedM prompt interaction","Owner management & read-only customer view","Placement via VORP item (product_catalog) or /setcatalog","Admin override via ACE & optional job-based override","Local PNG compression, lazy loading & automatic MySQL table"]
     },
-    tebexUrl: "https://luhe-scripts.tebex.io/package/horse-system"
+    tebexUrl: "https://luhe-scripts.tebex.io/luhescripts"
   },
   {
-    name: "Bounty Hunting",
-    tagline: { de:"Steckbriefe, Kopfgelder und Gefangenentransport.",
-               en:"Wanted posters, bounties and prisoner transport." },
-    price: 24.99,
-    badge: { de:"NEU", en:"NEW" },
+    name: "Frontier Memory",
+    tagline: { de:"Persistente Gerüchte, Verdacht und Stadt-Gedächtnis.",
+               en:"Persistent rumors, suspicion and town memory." },
+    price: 20.00,
     frameworks: ["VORP"],
     description: {
-      de:"Verwandle deine Stadt in den Wilden Westen: Spieler nehmen Kopfgeld-Aufträge an, jagen Ziele, fesseln sie und liefern sie lebend oder tot beim Sheriff ab. Inklusive dynamischer Steckbrief-Tafel und NPC-Zielen.",
-      en:"Turn your town into the Wild West: players take bounty contracts, hunt targets, tie them up and bring them in dead or alive to the sheriff. Includes a dynamic wanted board and NPC targets."
+      de:"Eine RedM/VORP-Ressource für persistente Gerüchte, Verdacht, Zeugen, Zeitungen und das Gedächtnis einer Stadt. Spieler hinterlassen soziale Spuren, wenn sie sichtbare Taten begehen. NPC-Zeugen, Heat, Zeitungsartikel, Dienst-Benachrichtigungen für das Gesetz und Umgebungs-Tratsch greifen als ein RP-fokussiertes System ineinander – bewusst langsam, glaubwürdig und von sichtbaren sozialen Konsequenzen getrieben statt wie ein Arcade-Fahndungssystem.",
+      en:"A RedM/VORP resource for persistent rumors, suspicion, witnesses, newspapers and town memory. Players leave social traces when they commit visible actions. NPC witnesses, heat, newspaper articles, law-duty alerts and ambient gossip work together as one RP-focused system — deliberately slow, believable and driven by visible social consequences rather than an arcade wanted system."
     },
     features: {
-      de:["Dynamische Steckbrief-Tafel mit Live-Kopfgeldern","Spieler- und NPC-Ziele","Fesseln & Gefangenentransport auf dem Pferd","Belohnungssystem mit Sheriff-Abgabe"],
-      en:["Dynamic wanted board with live bounties","Player and NPC targets","Tie up & transport prisoners on horseback","Reward system with sheriff hand-in"]
+      de:["Verdachtswert pro Spieler und Stadt, basierend auf Zeugen & Tatort","Vorfallstypen: Schüsse, Übergriff, Mord, Raub, Drogendeal, Hausfriedensbruch","Lokale Heat-Werte, gespeicherte Vorfälle, Gerüchte & Zeitungsartikel","Dienst-Benachrichtigungen für Sheriff/Police/Marshal & Discord-Webhooks","Ambiente-NPC-Reaktionen wie Anstarren, Tuscheln oder Fliehen","Zeitungs-NUI mit globalen & lokalen Gerüchten und eigener Status-Ansicht"],
+      en:["Suspicion value per player and town based on witnesses & location","Incident types: gunshot, assault, murder, robbery, drug deal, trespass","Local heat values, stored incidents, rumors & newspaper articles","Law-duty alerts for sheriff/police/marshal & Discord webhooks","Ambient NPC reactions such as staring, whispering or fleeing","Newspaper NUI with global & local rumors plus a personal status view"]
     },
-    tebexUrl: "https://luhe-scripts.tebex.io/package/bounty-hunting"
+    tebexUrl: "https://luhe-scripts.tebex.io/luhescripts"
   },
   {
-    name: "Blacksmith & Crafting",
-    tagline: { de:"Schmiede, Rezepte und Materialwirtschaft.",
-               en:"Forge, recipes and material management." },
-    price: 14.99,
+    name: "LH Discovery FOW",
+    tagline: { de:"Persistenter Fog-of-War pro Charakter.",
+               en:"Persistent fog-of-war map discovery per character." },
+    price: 10.00,
     frameworks: ["VORP"],
     description: {
-      de:"Ein komplettes Handwerkssystem rund um die Schmiede. Spieler sammeln Materialien, schmelzen Erz, fertigen Werkzeuge und Waffen nach freischaltbaren Rezepten und steigern dabei ihren Beruf.",
-      en:"A complete crafting system built around the forge. Players gather materials, smelt ore, craft tools and weapons from unlockable recipes and level up their profession along the way."
+      de:"Ein persistentes, charakterbasiertes Fog-of-War-Entdeckungssystem für RedM-Server mit VORP und oxmysql. Es bringt den Story-Modus-Ablauf zurück: Neue Charaktere starten mit einer unentdeckten Karte, und erkundete Gebiete werden pro identifier + charidentifier gespeichert.",
+      en:"A persistent, character-based fog-of-war discovery system for RedM servers using VORP and oxmysql. It brings back the story-mode map discovery flow: new characters start with an undiscovered map, and explored areas are saved per identifier + charidentifier."
     },
     features: {
-      de:["Frei konfigurierbare Rezepte & Materialien","Fortschritts- und Berufslevel-System","Animierte Schmiede-Stationen","Lager- und Verkaufsanbindung"],
-      en:["Fully configurable recipes & materials","Progression and profession-level system","Animated forge stations","Storage and selling integration"]
+      de:["Persistente Kartenentdeckung pro VORP-Charakter","Automatisches Laden bereits entdeckter Bereiche nach dem Spawn","Serverseitige Validierung übermittelter Entdeckungs-Zellen","Konfigurierbare Gittergröße, Aufdeck-Radius & Sicherheitslimits","Automatische Tabellenerstellung mit install.sql als Fallback","Blip-sicher: entfernt oder versteckt vorhandene Karten-Blips nicht"],
+      en:["Persistent map discovery per VORP character","Auto-loads previously discovered areas after character spawn","Server-side validation of submitted discovery cells","Configurable grid size, reveal radius & security limits","Automatic table creation with install.sql fallback","Blip-safe: does not remove or hide existing map blips"]
     },
-    tebexUrl: "https://luhe-scripts.tebex.io/package/blacksmith"
+    tebexUrl: "https://luhe-scripts.tebex.io/luhescripts"
   },
   {
-    name: "Saloon & Poker",
-    tagline: { de:"Glücksspiel, Getränke und Live-Tische.",
-               en:"Gambling, drinks and live tables." },
-    price: 17.99,
+    name: "Law Shot Evidence",
+    tagline: { de:"Temporäre ballistische Spuren für das Gesetz.",
+               en:"Temporary ballistic evidence for law players." },
+    price: 20.00,
     frameworks: ["VORP"],
     description: {
-      de:"Bring Leben in deine Saloons: Mehrspieler-Poker an echten Tischen, Black Jack, ein Tresen-System mit Getränken und Rauschsystem sowie eine Bühne für Auftritte.",
-      en:"Bring your saloons to life: multiplayer poker at real tables, black jack, a bar system with drinks and an intoxication effect, plus a stage for performances."
+      de:"Eine RedM/VORP-Ressource, die temporäre ballistische Beweise erzeugt, wenn Nicht-Gesetz-Spieler in der Nähe von Gesetzeshütern schießen. Gesetz-Spieler sehen ein Suchgebiet, sichern die Spur am Tatort und erhalten ein forensisches Beweis-Item mit Waffen- und Munitionshinweisen. Es soll sich wie eine forensische Spur anfühlen, nicht wie ein sofortiges Fahndungssystem – Beweise sind temporär, nur für das Gesetz und müssen in der Welt eingesammelt werden.",
+      en:"A RedM/VORP resource that creates temporary ballistic evidence when non-law players fire weapons near law officers. Law players see a search area, secure the trace at the scene and receive a forensic evidence item with weapon and ammunition hints. It should feel like a forensic lead, not an instant wanted system — evidence is temporary, law-only and requires in-world collection."
     },
     features: {
-      de:["Mehrspieler-Poker & Black Jack","Tresen mit Getränken & Alkoholeffekten","Konfigurierbare Einsätze & Limits","Bühnen- und Stimmungssystem"],
-      en:["Multiplayer poker & black jack","Bar with drinks & alcohol effects","Configurable stakes & limits","Stage and ambience system"]
+      de:["Client-seitige Schuss-Erkennung mit serverseitiger Validierung","Beweis-Blips & Suchradius nur für das Gesetz","Halten-Prompt zum Sichern der Spur am Tatort","Beweis-Item mit Waffen- und Munitionsinformationen","Optionale Forensik-Büro-Pflicht vor dem Auslesen","Temporäre, datenbankgestützte Beweise mit automatischem Ablauf"],
+      en:["Client-side shot detection with server-side validation","Law-only evidence blips & search radius","Hold prompt to secure evidence at the scene","Evidence item with weapon & ammunition information","Optional forensics-office requirement before reading","Temporary database-backed evidence with automatic expiry"]
     },
-    tebexUrl: "https://luhe-scripts.tebex.io/package/saloon-poker"
+    tebexUrl: "https://luhe-scripts.tebex.io/luhescripts"
+  },
+  {
+    name: "LH MDT",
+    tagline: { de:"Immersives VORP-Kopfgeld-Board mit Ermittlungen.",
+               en:"Immersive VORP bounty board with investigations." },
+    price: 23.00,
+    frameworks: ["VORP"],
+    description: {
+      de:"LH MDT ist ein immersives VORP-Kopfgeld-Board-System für RedM. Spieler nehmen NPC-Kopfgeld-Verträge an, untersuchen hinweisbasierte Fälle, jagen Ziele allein oder in Gruppen und liefern sie lebend oder tot für konfigurierbare Belohnungen ab. Vertragswahl, Missionslimits, Gruppenmitgliedschaft, Hinweis-Fortschritt, Lieferprüfung, Belohnungen und Missions-Cleanup werden serverseitig gesteuert.",
+      en:"LH MDT is an immersive VORP bounty board system for RedM. Players accept NPC bounty contracts, investigate clue-based cases, hunt targets alone or in groups and deliver them dead or alive for configurable rewards. Contract selection, mission limits, group membership, clue progress, delivery validation, rewards and mission cleanup are handled server-side."
+    },
+    features: {
+      de:["Interaktive Kopfgeld-Boards an konfigurierbaren Sheriff-Büros","Standard-, Story- und legendäre NPC-Verträge","Lebend-oder-tot-Lieferung mit konfigurierbaren Belohnungs-Multiplikatoren","Gruppensystem mit Einladungen, geteiltem Fortschritt & optionaler Belohnungsteilung","Hinweis-Ermittlung für Story- und legendäre Verträge","Serverseitige Distanz-Checks, Rate-Limits & Lieferprüfung"],
+      en:["Interactive bounty boards at configurable sheriff offices","Standard, story and legendary NPC contracts","Dead-or-alive delivery with configurable reward multipliers","Group system with invites, shared progress & optional split rewards","Clue investigation for story and legendary contracts","Server-side distance checks, rate limits & delivery validation"]
+    },
+    tebexUrl: "https://luhe-scripts.tebex.io/luhescripts"
+  },
+  {
+    name: "LH Shooting Range",
+    tagline: { de:"Schießstand mit Modi, Scoring & Leaderboards.",
+               en:"Shooting range with modes, scoring & leaderboards." },
+    price: 35.00,
+    frameworks: ["VORP"],
+    description: {
+      de:"Eine immersive RedM/VORP-Schießstand-Ressource mit konfigurierbaren Modi, serverseitigem Scoring, MySQL-Leaderboards, Ziel-Props, Fallback-Markern und optionalem Champion-Buff.",
+      en:"An immersive RedM/VORP shooting range resource with configurable modes, server-side scoring, MySQL leaderboards, target props, fallback markers and an optional champion buff."
+    },
+    features: {
+      de:["Drei fertige Modi: Classic Run, Deadeye Rush & Sheriff Trial","Serverseitige Rundenvalidierung, Score-Berechnung & Leaderboard-Speicherung","Konfigurierbare Eintrittsgebühren, Zielanzahl, Timer, Trefferpunkte & Strafen","Bullseye-, Fehlschuss-, Falschziel- & Streak-Bonus-Logik","Optionaler Einzel-Lock oder instanziierte Sessions, tägliches Leaderboard","NUI-Modus-Board, Live-HUD, Ergebnis-Ansicht & Top-10-Leaderboard"],
+      en:["Three ready-to-use modes: Classic Run, Deadeye Rush & Sheriff Trial","Server-side round validation, score calculation & leaderboard saving","Configurable entry fees, target count, timers, hit points & penalties","Bullseye, miss, wrong-target & streak bonus logic","Optional single-user lock or instanced sessions, daily leaderboard","NUI mode board, live HUD, result view & Top-10 leaderboard"]
+    },
+    tebexUrl: "https://luhe-scripts.tebex.io/luhescripts"
   }
 ];
 
